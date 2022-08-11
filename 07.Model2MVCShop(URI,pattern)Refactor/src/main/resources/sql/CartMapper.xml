@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--	
+	UserMapper.xml :: SQL 를 갖는 MetaData 
+	
+	- MyBatis Framework 은 XML MetaData 를 사용 SQL구문을 관리
+	  (SQL은 xml 을 통해 적절히 캡슐화 되어 애플리케이선 외부로 분리함)
+	- SQL문의 입력(?) / 출력(?)을 매핑한다.  <== 아래의 select element 참조
+ -->
+
+<mapper namespace="CartMapper">
+
+	<!-- 위의  namespace 이용 Application 에서 UserMapper.~~ 로 아래의 SQL 을 참조  
+	 	  :: 아래의 query 수행 후 결과 resultType 에 선언된 User Domain Object 
+	 	   	  Field ( property )에 자동연결(?,바인딩)
+	 	  :: SQL / Query 의 Alias 와 User Domain Object 의 Field 이름 동일한 것 확인.  -->
+
+  	<resultMap id="cartSelectMap" type="com.model2.mvc.service.domain.Cart">
+  		<result property="prod_no" column="prod_no" jdbcType="NUMERIC"/>
+  		<result property="user_id" column="user_id" jdbcType="VARCHAR"/>
+  		<result property="image" column="image" jdbcType="VARCHAR"/>
+  		<result property="prod_name" column="product_name" jdbcType="VARCHAR"/>
+  		<result property="prod_detail" column="product_detail" jdbcType="VARCHAR"/>
+  		<result property="amount" column="amount" jdbcType="NUMERIC"/>
+  		<result property="price" column="price" jdbcType="NUMERIC"/>
+  	</resultMap>
+
+  	<insert id="insertCart" parameterType="com.model2.mvc.service.domain.Cart">
+  		INSERT INTO cart(prod_no, user_id, image, product_name, product_detail, amount, price)
+  		VALUES(#{prod_no}, #{user_id}, #{image}, #{prod_name}, #{prod_detail}, #{amount}, #{price})
+  	</insert>
+  	
+  	<delete id="deleteCart" parameterType="Map">
+  		DELETE FROM cart WHERE prod_no IN
+  			<if test="deleteArray.length != 0">
+  				<foreach collection="deleteArray" item="value" open="(" separator="," close=")">
+  					#{value}
+  				</foreach>
+  			</if>
+		AND user_id=#{user_id}
+  	</delete>
+  	
+  	<update id="updateAmount" parameterType="com.model2.mvc.service.domain.Cart">
+  		UPDATE cart
+  		<set>
+  			amount=#{amount}
+  		</set>
+  		WHERE prod_no=#{prod_no} AND user_id=#{user_id}
+  	</update>
+  	
+  	<select id="totalCountCartList" parameterType="string" resultType="int">
+  		SELECT COUNT(*)
+  		FROM ( SELECT c.prod_no, c.user_id, c.image, c.product_name, c.product_detail, c.amount, c.price, p.amount as prod_amount 
+				FROM cart c, product p
+				WHERE c.prod_no = p.prod_no AND user_id=#{user_id} )
+  	</select>
+  	
+  	<select id="getCartList" parameterType="java.lang.String" resultMap="cartSelectMap">
+  		SELECT c.prod_no, c.user_id, c.image, c.product_name, c.product_detail, c.amount, c.price, p.amount as prod_amount 
+		FROM cart c, product p
+		WHERE c.prod_no = p.prod_no AND user_id=#{user_id}
+  	</select>
+
+</mapper>
+
+

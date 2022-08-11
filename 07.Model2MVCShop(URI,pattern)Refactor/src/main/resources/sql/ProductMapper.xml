@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--	
+	UserMapper.xml :: SQL 를 갖는 MetaData 
+	
+	- MyBatis Framework 은 XML MetaData 를 사용 SQL구문을 관리
+	  (SQL은 xml 을 통해 적절히 캡슐화 되어 애플리케이선 외부로 분리함)
+	- SQL문의 입력(?) / 출력(?)을 매핑한다.  <== 아래의 select element 참조
+ -->
+
+<mapper namespace="ProductMapper">
+
+	<!-- 위의  namespace 이용 Application 에서 UserMapper.~~ 로 아래의 SQL 을 참조  
+	 	  :: 아래의 query 수행 후 결과 resultType 에 선언된 User Domain Object 
+	 	   	  Field ( property )에 자동연결(?,바인딩)
+	 	  :: SQL / Query 의 Alias 와 User Domain Object 의 Field 이름 동일한 것 확인.  -->
+
+  	<resultMap id="productSelectMap" 	type="com.model2.mvc.service.domain.Product">
+  		<result property="prodNo" 		column="prod_no" 			jdbcType="NUMERIC"/>
+  		<result property="prodName" 	column="prod_name" 			jdbcType="VARCHAR"/>
+  		<result property="prodDetail" 	column="prod_detail" 		jdbcType="VARCHAR"/>
+  		<result property="manuDate" 	column="manufacture_day" 	jdbcType="VARCHAR"/>
+  		<result property="price" 		column="price" 				jdbcType="NUMERIC"/>
+  		<result property="fileName" 	column="image_file" 		jdbcType="VARCHAR"/>
+  		<result property="regDate" 		column="reg_date" 			jdbcType="DATE"/>
+  		<result property="amount" 		column="amount" 			jdbcType="NUMERIC"/>
+  	</resultMap>
+  	
+  	
+  	
+	<insert id="addProduct" parameterType="com.model2.mvc.service.domain.Product">
+		INSERT INTO product(prod_no, prod_name, prod_detail, manufacture_day, price, image_file, reg_date, amount)
+		VALUES (seq_product_prod_no.NEXTVAL,#{prodName:VARCHAR},#{prodDetail:VARCHAR},TO_CHAR(TO_DATE(#{manuDate:VARCHAR}),'yyyymmdd'),#{price:NUMERIC},#{fileName:VARCHAR},sysdate,#{amount:NUMERIC})
+	</insert>	
+	
+	
+	
+	<select id="findProduct" parameterType="int" resultMap="productSelectMap">
+		SELECT * FROM product WHERE prod_no=#{value}
+	</select>
+	
+	
+	<select id="getNonMemberPurchase" parameterType="int" resultMap="productSelectMap">
+		SELECT p.*, t.tran_status_code tsc FROM product p, transaction t WHERE p.prod_no=t.prod_no(+) AND t.tran_no=#{value}
+	</select>
+	
+	
+	
+	<select id="totalCountProduct" parameterType="com.model2.mvc.common.Search" resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM ( SELECT vt.*
+				FROM ( SELECT ROW_NUMBER() OVER(PARTITION BY p.prod_no ORDER BY t.order_data desc) as r, p.amount, p.prod_no, p.prod_name, p.price, p.reg_date, nvl(tran_status_code, 0) as tcode
+						FROM transaction t, product p
+						WHERE t.prod_no(+)=p.prod_no ) vt
+				WHERE r = 1
+		<if test="searchCondition != null and searchKeyword != ''">
+			<if test="searchCondition == 0">
+				AND PROD_NO=#{searchKeyword}
+			</if>
+			<if test="searchCondition == 1">
+				AND PROD_NAME LIKE '%'||#{searchKeyword}||'%'
+			</if>
+			<if test="searchCondition == 2">
+				AND PRICE=#{searchKeyword}
+			</if>
+		</if>
+		<!-- <choose>
+			<when test="priceSort != null">
+				ORDER BY price #{priceSort}
+			</when>
+		</choose> -->
+		)
+		<!-- <if test="priceSort != null">
+			ORDER BY price #{priceSort}
+		</if> -->
+	</select>
+	
+		
+	
+	<select id="allProduct" parameterType="com.model2.mvc.common.Search" resultMap="productSelectMap">
+	SELECT *
+	FROM ( SELECT ROWNUM AS row_n, vt1.*
+			FROM ( SELECT vt.* 
+					FROM ( SELECT ROW_NUMBER() OVER(PARTITION BY p.prod_no ORDER BY t.order_data desc) as r, p.amount, p.prod_no, p.prod_name, p.price, p.reg_date, nvl(tran_status_code, 0) as proTranCode
+							FROM transaction t, product p 
+							WHERE t.prod_no(+)=p.prod_no ) vt 
+			 		WHERE r = 1
+					<if test="searchCondition != null and searchKeyword != ''">
+						<if test="searchCondition == 0">
+							AND PROD_NO=#{searchKeyword}
+						</if>
+						<if test="searchCondition == 1">
+							AND PROD_NAME LIKE '%'||#{searchKeyword}||'%'
+						</if>
+						<if test="searchCondition == 2">
+							AND PRICE=#{searchKeyword}
+						</if>
+					</if>
+					
+					<!-- <if test="priceSort != null">
+					ORDER BY PRICE #{priceSort}
+					</if> -->
+				) vt1
+			) vt2
+		WHERE row_n BETWEEN ((#{currentPage}-1)*#{pageSize}+1) AND #{currentPage}*#{pageSize}
+	</select>
+		
+		
+		
+		
+	<update id="updateProduct" parameterType="com.model2.mvc.service.domain.Product">
+		UPDATE PRODUCT set PROD_DETAIL=#{prodDetail}, MANUFACTURE_DAY=TO_CHAR(TO_DATE(#{manuDate}),'YYYYMMDD'), PRICE=#{price}, AMOUNT=#{amount}, IMAGE_FILE=#{fileName} where PROD_NO=#{prodNo}
+	</update>
+  	
+</mapper>
+
+
