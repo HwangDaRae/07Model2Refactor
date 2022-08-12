@@ -43,6 +43,7 @@
 		<mapper resource="sql/ProductMapper.xml"/>
 		<mapper resource="sql/PurchaseMapper.xml"/>
 		<mapper resource="sql/CartMapper.xml"/>
+		<mapper resource="sql/UploadMapper.xml"/>
 	</mappers>
 
 </configuration>

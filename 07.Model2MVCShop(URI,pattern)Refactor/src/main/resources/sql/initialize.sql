@@ -73,6 +73,16 @@ CREATE TABLE Cart (
 	price				NUMBER(10)
 );
 
+CREATE TABLE Upload_File (
+	file_no				NUMBER(20)			NOT NULL,
+	fileCount			NUMBER(20)			NOT NULL,
+	image_file1			VARCHAR2(100)		NOT NULL,
+	image_file2			VARCHAR2(100),
+	image_file3			VARCHAR2(100),
+	image_file4			VARCHAR2(100),
+	image_file5			VARCHAR2(100)
+);
+
 
 
 INSERT 

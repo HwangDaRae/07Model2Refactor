@@ -104,7 +104,10 @@
 			<table border="0" cellspacing="0" cellpadding="0">
 				<tr>
 					<td height="26">
-						<img src="/images/uploadFiles/${ productVO.fileName }"/>
+						<c:forEach var="i" begin="0" end="${ count-1 }" step="1">
+							<img src="/images/uploadFiles/${ uploadVO.fileName[i] }"/><br/>
+							${ uploadVO.fileName[i] }<br/><hr/>
+						</c:forEach>
 					</td>
 				</tr>
 			</table>

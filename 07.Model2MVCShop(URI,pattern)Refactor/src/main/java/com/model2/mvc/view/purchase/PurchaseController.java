@@ -133,14 +133,8 @@ public class PurchaseController {
 		Product productVO = new Product();
 		
 		//주문번호에 넣은 식별성있는 값
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss");
 		String tranId = sdf1.format( Calendar.getInstance().getTime() ) + "";
-		// 2022-08-03 16:32:16
-        String charsToRemove = "- :";
-        for (char c : charsToRemove.toCharArray()) {
-        	tranId = tranId.replace(String.valueOf(c), "");
-        }
-        //20220803163216
 		System.out.println("purchaseVO.toString() defore : " + purchaseVO.toString());
 		
 		

@@ -27,6 +27,8 @@
 		<context:exclude-filter 	type="annotation" 	expression="org.springframework.stereotype.Repository"/>
 	</context:component-scan>
 	
+		           
+
    	
    	<!-- ////////////////////////////////////////// 추가 ,  변경된 부분 ////////////////////////////////////////////////// -->
    	<!-- ■ RequestMappingHandlerMapping 설정 등 기타 Annotation 기반
@@ -61,14 +63,11 @@
 	 
 	 		:: Interceptor 선언 : 로그인 유무확인.
 	<bean id="logonCheckInterceptor"	class="com.model2.mvc.common.web.LogonCheckInterceptor" />
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->		           
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->	
 
-
-	<!--  :: ViewResolver 선언 -->	
+	<!--  :: ViewResolver 선언 -->
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" />
 	
-	
-	<!-- ////////////////////////////////////////// 추가 ,  변경된 부분 ////////////////////////////////////////////////// -->
 	<!--	
 		■ / 형식의 Mapping 은 모든(정적,동적 자원) 요청시 처리책임
 		■ 정적자원 요청시 DispatcherServlet 에게 처리방법지정
@@ -81,13 +80,11 @@
 	<mvc:resources mapping="/css/**" location="/css/" />
    	<mvc:resources mapping="/images/**" location="/images/" />
    	<mvc:resources mapping="/javascript/**" location="/javascript/" />
-	<!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
    	
 
 	<!-- 	:: exception resolver  선언 :: 서술적 / 선언적 예외처리 
 			:: Servlet 에서의 선언적 예외처리를 다시 생각하며....  -->
-	<bean id="exceptionResolver"
-				class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
 		
 		<property name="exceptionMappings">
 			<props>
@@ -99,5 +96,8 @@
 		<property name="defaultErrorView"	value="/common/error.jsp" />
 		
 	</bean>
+	
+	<!-- 파일 업로드 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
 	
 </beans>

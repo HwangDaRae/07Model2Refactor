@@ -2,8 +2,11 @@ package com.model2.mvc.view.product;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,14 +25,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.model2.mvc.common.Page;
 import com.model2.mvc.common.Search;
 import com.model2.mvc.common.util.CommonUtil;
 import com.model2.mvc.service.domain.Product;
+import com.model2.mvc.service.domain.Upload;
 import com.model2.mvc.service.domain.User;
 import com.model2.mvc.service.product.ProductService;
 import com.model2.mvc.service.product.impl.ProductServiceImpl;
+import com.model2.mvc.service.upload.UploadService;
 
 @Controller
 @RequestMapping("/product/*")
@@ -37,7 +43,11 @@ public class ProductController {
 	
 	@Autowired
 	@Qualifier("productServiceImpl")
-	ProductService productServiceImpl;	
+	ProductService productServiceImpl;
+	
+	@Autowired
+	@Qualifier("uploadServiceImpl")
+	UploadService uploadServiceImpl;
 
 	public ProductController() {
 		System.out.println(getClass() + " default Constructor()]");
@@ -179,6 +189,9 @@ public class ProductController {
 		return "forward:/product/addProduct.jsp";
 	}
 	*/
+	
+	
+	/*
 	@RequestMapping(value = "addProduct")
 	public String getProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		System.out.println("/product/addProduct : POST");
@@ -261,6 +274,61 @@ public class ProductController {
 		
 		return "forward:/product/addProduct.jsp";
 	}
+	*/
+	
+
+	/*
+	@RequestMapping(value = "addProduct", method = RequestMethod.POST)
+	//public String addProduct(MultipartFile uploadfile, Product productVO, HttpServletRequest request) throws Exception {
+	public String addProduct(@ModelAttribute Product productVO, @RequestParam("uploadfile") MultipartFile uploadfile, HttpServletRequest request) throws Exception {
+		System.out.println("/product/addProduct : POST");
+		
+		uploadfile.transferTo(new File("C:\\Users\\bitcamp\\git\\07Model2Refactor\\07.Model2MVCShop(URI,pattern)Refactor\\src\\main\\webapp\\images\\uploadFiles\\", uploadfile.getOriginalFilename()));		
+		productVO.setFileName(uploadfile.getOriginalFilename());
+		productServiceImpl.addProduct(productVO);		
+		request.setAttribute("productVO", productVO);
+		
+		return "forward:/product/addProduct.jsp";
+	}
+	*/
+
+	///*
+	@RequestMapping(value = "addProduct", method = RequestMethod.POST)
+	public String addProduct(@ModelAttribute Product productVO,
+							@RequestParam("uploadfile") List<MultipartFile> multiFileList,
+							HttpServletRequest request,
+							Upload uploadVO,
+							String[] fileName ) throws Exception {
+		System.out.println("/product/addProduct : POST");
+		
+		fileName = new String[multiFileList.size()];
+		// File file = new File(경로 + 파일이름);
+		for(int i = 0; i < multiFileList.size(); i++) {
+			multiFileList.get(i).transferTo(new File("C:\\Users\\bitcamp\\git\\07Model2Refactor\\07.Model2MVCShop(URI,pattern)Refactor\\src\\main\\webapp\\images\\uploadFiles\\",
+					multiFileList.get(i).getOriginalFilename()));
+			fileName[i] = multiFileList.get(i).getOriginalFilename();
+		}
+		
+		uploadVO.setFileName(fileName);
+		uploadVO.setFileCount(multiFileList.size());
+		
+		//고유번호 생성
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss");
+		String fileNo = sdf1.format( Calendar.getInstance().getTime() ) + "";
+		
+		productVO.setFileName(fileNo);
+		uploadVO.setFileNo(fileNo);
+		
+		productServiceImpl.addProduct(productVO);
+		uploadServiceImpl.addUpload(uploadVO);
+		
+		request.setAttribute("productVO", productVO);
+		request.setAttribute("uploadVO", uploadVO);
+		request.setAttribute("count", uploadVO.getFileCount());
+		
+		return "forward:/product/addProduct.jsp";
+	}
+	//*/
 	
 	@RequestMapping(value = "updateProductView/{prodNo}/{menu}", method = RequestMethod.GET )
 	public String updateProductView(@PathVariable int prodNo, @PathVariable String menu, Model model) throws Exception {
