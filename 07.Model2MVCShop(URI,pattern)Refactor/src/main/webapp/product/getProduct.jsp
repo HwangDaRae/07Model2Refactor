@@ -43,7 +43,7 @@ function addPurchase(){
 }
 </script>
 
-<%
+<%--
 Product vo = (Product)request.getAttribute("productVO");
 System.out.println(vo);
 //상품번호를 쿠키에 담는다
@@ -66,7 +66,7 @@ if(history.isEmpty()) {
 Cookie cookie = new Cookie("prodInfoCookie", URLEncoder.encode(history));
 cookie.setMaxAge(24*60*60);
 response.addCookie(cookie);
-%>
+--%>
 
 <html>
 <head>
