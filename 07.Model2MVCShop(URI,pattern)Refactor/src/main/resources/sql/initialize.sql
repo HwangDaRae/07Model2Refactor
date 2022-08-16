@@ -3,6 +3,7 @@ DROP TABLE Cart;
 DROP TABLE transaction;
 DROP TABLE product;
 DROP TABLE users;
+DROP TABLE upload_file;
 
 
 ALTER TABLE product ADD amount NUMBER(20);
@@ -74,13 +75,13 @@ CREATE TABLE Cart (
 );
 
 CREATE TABLE Upload_File (
-	file_no				NUMBER(20)			NOT NULL,
+	fileNo				VARCHAR2(100)		NOT NULL,
 	fileCount			NUMBER(20)			NOT NULL,
-	image_file1			VARCHAR2(100)		NOT NULL,
-	image_file2			VARCHAR2(100),
-	image_file3			VARCHAR2(100),
-	image_file4			VARCHAR2(100),
-	image_file5			VARCHAR2(100)
+	fileName1			VARCHAR2(100)		NOT NULL,
+	fileName2			VARCHAR2(100),
+	fileName3			VARCHAR2(100),
+	fileName4			VARCHAR2(100),
+	fileName5			VARCHAR2(100)
 );
 
 

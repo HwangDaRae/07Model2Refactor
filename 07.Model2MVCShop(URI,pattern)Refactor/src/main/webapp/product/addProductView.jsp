@@ -46,17 +46,34 @@ function resetData(){
 -->
 </script>
 <script type="text/javascript">
+var cnt = 0;
 function fn_addFile(){
-	alert('a');
-	var input1 = document.createElement('input');
-	var br1 = document.createElement('br');
-	input1.setAttribute("type", "file");
-	input1.setAttribute("name", "uploadfile");
-	input1.setAttribute("class", "ct_input_g");
-	input1.setAttribute("style", "width: 200px; height: 19px");
-	input1.setAttribute("maxLength", "13");
-	document.getElementById('createInput').appendChild(br1);
-	document.getElementById('createInput').appendChild(input1);
+	if(cnt == 5){
+		document.getElementById('limit').innerText = '5개까지 업로드 가능합니다.';
+	}else{
+		cnt++;
+		var input1 = document.createElement('input');
+		var br1 = document.createElement('br');
+		input1.setAttribute("type", "file");
+		input1.setAttribute("name", "uploadfile");
+		input1.setAttribute("value", "value"+cnt);
+		input1.setAttribute("class", "ct_input_g");
+		input1.setAttribute("style", "width: 200px; height: 19px");
+		input1.setAttribute("maxLength", "13");
+		document.getElementById('createInput').appendChild(br1);
+		document.getElementById('createInput').appendChild(input1);
+	}
+}
+
+function fn_removeFile(){
+	if(cnt == 0){
+		document.getElementById('limit').innerText = ' ';
+	}else{
+		cnt--;
+		document.getElementById('limit').innerText = ' ';
+		document.getElementById('createInput').lastChild.remove();
+		document.getElementById('createInput').lastChild.remove();
+	}
 }
 </script>
 </head>
@@ -165,6 +182,8 @@ function fn_addFile(){
 		<td bgcolor="D6D6D6" width="1"></td>
 		<td class="ct_write01" id="createInput">
 			<input type="button" value="파일추가" onclick="fn_addFile()">
+			<input type="button" value="파일삭제" onclick="fn_removeFile()">
+			<b id="limit"></b>
 		</td>
 	</tr>
 	<tr>

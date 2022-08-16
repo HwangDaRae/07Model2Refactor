@@ -3,6 +3,7 @@ package com.model2.mvc.view.product;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -32,6 +33,7 @@ import com.model2.mvc.common.Search;
 import com.model2.mvc.common.util.CommonUtil;
 import com.model2.mvc.service.domain.Product;
 import com.model2.mvc.service.domain.Upload;
+import com.model2.mvc.service.domain.Upload_Sub;
 import com.model2.mvc.service.domain.User;
 import com.model2.mvc.service.product.ProductService;
 import com.model2.mvc.service.product.impl.ProductServiceImpl;
@@ -298,33 +300,66 @@ public class ProductController {
 							@RequestParam("uploadfile") List<MultipartFile> multiFileList,
 							HttpServletRequest request,
 							Upload uploadVO,
-							String[] fileName ) throws Exception {
+							Upload_Sub uploadSubVO,
+							ArrayList<String> fileName ) throws Exception {
 		System.out.println("/product/addProduct : POST");
 		
-		fileName = new String[multiFileList.size()];
+		
 		// File file = new File(경로 + 파일이름);
 		for(int i = 0; i < multiFileList.size(); i++) {
 			multiFileList.get(i).transferTo(new File("C:\\Users\\bitcamp\\git\\07Model2Refactor\\07.Model2MVCShop(URI,pattern)Refactor\\src\\main\\webapp\\images\\uploadFiles\\",
 					multiFileList.get(i).getOriginalFilename()));
-			fileName[i] = multiFileList.get(i).getOriginalFilename();
 		}
 		
-		uploadVO.setFileName(fileName);
-		uploadVO.setFileCount(multiFileList.size());
+		int size = multiFileList.size();
+		switch (size) {
+		case 1:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			break;
+		case 2:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			break;
+		case 3:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			uploadSubVO.setFileName3(multiFileList.get(2).getOriginalFilename());
+			break;
+		case 4:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			uploadSubVO.setFileName3(multiFileList.get(2).getOriginalFilename());
+			uploadSubVO.setFileName4(multiFileList.get(3).getOriginalFilename());
+			break;
+		case 5:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			uploadSubVO.setFileName3(multiFileList.get(2).getOriginalFilename());
+			uploadSubVO.setFileName4(multiFileList.get(3).getOriginalFilename());
+			uploadSubVO.setFileName5(multiFileList.get(4).getOriginalFilename());
+			break;
+		}
 		
 		//고유번호 생성
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMddHHmmss");
 		String fileNo = sdf1.format( Calendar.getInstance().getTime() ) + "";
 		
-		productVO.setFileName(fileNo);
 		uploadVO.setFileNo(fileNo);
+		uploadVO.setFileName(fileName);
+		uploadVO.setFileCount(multiFileList.size());
 		
+		System.out.println("uploadVO : " + uploadVO);
+		System.out.println("uploadSubVO : " + uploadSubVO);
+		
+		productVO.setFileName(fileNo);
+		///*
 		productServiceImpl.addProduct(productVO);
-		uploadServiceImpl.addUpload(uploadVO);
+		uploadServiceImpl.addUpload(uploadVO, uploadSubVO);
 		
 		request.setAttribute("productVO", productVO);
 		request.setAttribute("uploadVO", uploadVO);
 		request.setAttribute("count", uploadVO.getFileCount());
+		//*/
 		
 		return "forward:/product/addProduct.jsp";
 	}
@@ -337,7 +372,13 @@ public class ProductController {
 		System.out.println("menu : " + menu);
 		
 		Product productVO = productServiceImpl.getProduct(prodNo);
+		Upload uploadVO = uploadServiceImpl.getUploadFile(productVO.getFileName());
+		
+		System.out.println("uploadVO : " + uploadVO);
+		
 		model.addAttribute("productVO", productVO);
+		model.addAttribute("uploadVO", uploadVO);
+		model.addAttribute("count", uploadVO.getFileCount());
 		
 		if( menu.equals("manage") && productVO.getProTranCode() == null ) {
 			return "forward:/product/updateProductView.jsp";
@@ -357,93 +398,94 @@ public class ProductController {
 	}
 	*/
 	@RequestMapping(value = "updateProduct", method = RequestMethod.POST )
-	public String updateProduct(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String updateProduct(@ModelAttribute("productVO") Product productVO,
+								@RequestParam("uploadfile") List<MultipartFile> multiFileList,
+								HttpServletRequest request,
+								Upload uploadVO,
+								Upload_Sub uploadSubVO ) throws Exception {
 		System.out.println("/product/updateProduct : POST");
+		System.out.println("업데이트 할 상품 정보 : " + productVO);
+		System.out.println("파일 리스트 사이즈 : " + multiFileList.size());
 		
-		if (FileUpload.isMultipartContent(request)) {
-			String temDir = "C:\\workspace\\07.Model2MVCShop(URI,pattern)Refactor\\src\\main\\webapp\\images\\uploadFiles";
-
-			DiskFileUpload fileUpload = new DiskFileUpload();
-			fileUpload.setRepositoryPath(temDir);
-
-			fileUpload.setSizeMax(1024 * 1024 * 10);
-
-			fileUpload.setSizeThreshold(1024 * 100);
-
-			if (request.getContentLength() < fileUpload.getSizeMax()) {
-				Product productVO = new Product();
-
-				StringTokenizer token = null;
-				
-				ProductServiceImpl service = new ProductServiceImpl();
-
-				List fileItemList = fileUpload.parseRequest(request);
-				int Size = fileItemList.size();
-				for (int i = 0; i < Size; i++) {
-					FileItem fileItem = (FileItem) fileItemList.get(i);
-
-					if (fileItem.isFormField()) {
-						if (fileItem.getFieldName().equals("manuDate")) {
-							token = new StringTokenizer(fileItem.getString("euc-kr"), "-");
-							String manuDate = token.nextToken();
-							
-							while(token.hasMoreTokens()) {
-								manuDate += token.nextToken();
-							}
-							
-							productVO.setManuDate(manuDate);
-						} else if (fileItem.getFieldName().equals("prodName")) {
-							productVO.setProdName(fileItem.getString("euc-kr"));
-						} else if (fileItem.getFieldName().equals("prodDetail")) {
-							productVO.setProdDetail(fileItem.getString("euc-kr"));
-						} else if (fileItem.getFieldName().equals("price")) {
-							productVO.setPrice(Integer.parseInt(fileItem.getString("euc-kr")));
-						} else if (fileItem.getFieldName().equals("prodNo")) {
-							productVO.setProdNo(Integer.parseInt(fileItem.getString("euc-kr")));
-						} else if (fileItem.getFieldName().equals("amount")) {
-							productVO.setAmount(Integer.parseInt(fileItem.getString("euc-kr")));
-						}
-						
-					} else { // 파일 형식이면
-
-						if (fileItem.getSize() > 0) {
-							int idx = fileItem.getName().lastIndexOf("\\");
-							if (idx == -1) {
-								idx = fileItem.getName().lastIndexOf("/");
-							}
-							String fileName = fileItem.getName().substring(idx + 1);
-							System.out.println("파일 이름 : " + fileName);
-							productVO.setFileName(fileName);
-
-							try {
-								File uploadedFile = new File(temDir, fileName);
-								fileItem.write(uploadedFile);
-							} catch (IOException e) {
-								System.out.println(e);
-							}
-
-						} else {
-							productVO.setFileName("../../images/empty.GIF");
-						}
-
-					}//else
-
-				}//for
-
-				System.out.println(productVO);
-				request.setAttribute("productVO", productServiceImpl.updateProduct(productVO));
-
-			} else {
-				// 업로드하는 파일이 setSizeMax보다 큰 경우
-				int overSize = (request.getContentLength() / 1000000);
-				System.out.println("<script>alert('파일의 크기는 1MB까지 입니다. 올리신 파일 용량은" + overSize + "MB입니다");
-				System.out.println("history.back();</script>");
-			}
-		} else {
-			System.out.println("인코딩 타입이 multipart/form-data가 아닙니다.");
+		// File file = new File(경로 + 파일이름);
+		for(int i = 0; i < multiFileList.size(); i++) {
+			multiFileList.get(i).transferTo(new File("C:\\Users\\bitcamp\\git\\07Model2Refactor\\07.Model2MVCShop(URI,pattern)Refactor\\src\\main\\webapp\\images\\uploadFiles\\",
+					multiFileList.get(i).getOriginalFilename()));
 		}
+		
+		int size = multiFileList.size();
+		System.out.println("업데이트 할 파일 개수 : " + size);
+		
+		switch (size) {
+		case 1:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			break;
+		case 2:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			break;
+		case 3:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			uploadSubVO.setFileName3(multiFileList.get(2).getOriginalFilename());
+			break;
+		case 4:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			uploadSubVO.setFileName3(multiFileList.get(2).getOriginalFilename());
+			uploadSubVO.setFileName4(multiFileList.get(3).getOriginalFilename());
+			break;
+		case 5:
+			uploadSubVO.setFileName1(multiFileList.get(0).getOriginalFilename());
+			uploadSubVO.setFileName2(multiFileList.get(1).getOriginalFilename());
+			uploadSubVO.setFileName3(multiFileList.get(2).getOriginalFilename());
+			uploadSubVO.setFileName4(multiFileList.get(3).getOriginalFilename());
+			uploadSubVO.setFileName5(multiFileList.get(4).getOriginalFilename());
+			break;
+		}
+
+		System.out.println("업데이트 할 상품번호 : " + productVO.getProdNo());
+		uploadVO.setFileNo(productVO.getFileName());
+		uploadVO.setFileCount(multiFileList.size());
+		
+		System.out.println("uploadVO : " + uploadVO);
+		System.out.println("uploadSubVO : " + uploadSubVO);
+		
+		productVO = productServiceImpl.updateProduct(productVO);
+		uploadVO = uploadServiceImpl.updateUpload(uploadVO, uploadSubVO);
+		
+		request.setAttribute("productVO", productVO);
+		request.setAttribute("uploadVO", uploadVO);
+		request.setAttribute("count", uploadVO.getFileCount());
 		
 		return "forward:/product/getProduct.jsp";
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

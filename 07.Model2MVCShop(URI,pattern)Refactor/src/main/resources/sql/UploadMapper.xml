@@ -6,37 +6,37 @@
 
 <mapper namespace="UploadMapper">
 
-	<!--
-	private String fileNo;
-	private int fileCount;
-	private String[] fileName;
-	
-	CREATE TABLE Upload_File (
-	file_no				NUMBER(20)			NOT NULL,
-	fileCount			NUMBER(20)			NOT NULL,
-	image_file			VARCHAR2(100)		NOT NULL
-	);
-	-->
-
 	<resultMap id="uploadSelectMap" type="com.model2.mvc.service.domain.Upload">
-		<result property="fileNo" column="file_no" jdbcType="NUMERIC" />
+		<result property="fileNo" column="fileNo" jdbcType="NUMERIC" />
 		<result property="fileCount" column="fileCount" jdbcType="NUMERIC" />
-		<result property="fileName" column="image_file" jdbcType="VARCHAR" />
+		<collection property="fileName" ofType="String" javaType="java.util.ArrayList" resultMap="stringResultMap" />
+	</resultMap>
+	
+	<resultMap id="stringResultMap" type="com.model2.mvc.service.domain.Upload_Sub">
+		<result property="fileName1" column="fileName1" jdbcType="VARCHAR" />
+		<result property="fileName2" column="fileName2" jdbcType="VARCHAR" />
+		<result property="fileName3" column="fileName3" jdbcType="VARCHAR" />
+		<result property="fileName4" column="fileName4" jdbcType="VARCHAR" />
+		<result property="fileName5" column="fileName5" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<!-- SQL : INSERT -->
-	<insert id="addUpload" parameterType="com.model2.mvc.service.domain.Upload">
-		INSERT
-		INTO users( file_no, fileCount, 
-		<foreach collection="">
-			image_file1
-		</foreach>
-		 )
-		VALUES ( #{fileNo}, #{fileCount},
-		<foreach collection="">
-			fileName
-		</foreach>
-		 )
+	<insert id="addUpload" parameterType="map">
+		INSERT INTO upload_file( fileNo, fileCount, fileName1, fileName2, fileName3, fileName4, fileName5 )
+		VALUES ( #{upload.fileNo}, #{upload.fileCount},
+		#{upload_sub.fileName1}, #{upload_sub.fileName2:VARCHAR}, #{upload_sub.fileName3:VARCHAR}, #{upload_sub.fileName4:VARCHAR}, #{upload_sub.fileName5:VARCHAR} )
 	</insert>
+	
+	<select id="getUploadFile" parameterType="string" resultMap="uploadSelectMap">
+		SELECT * FROM upload_file u, product p
+		WHERE u.fileNo = p.image_file AND u.fileNo = #{value}
+	</select>
+	
+	<update id="updateUpload" parameterType="map">
+		UPDATE upload_file
+		SET fileCount = #{upload.fileCount}, fileName1 = #{upload_sub.fileName1}, fileName2 = #{upload_sub.fileName2:VARCHAR}
+			, fileName3 = #{upload_sub.fileName3:VARCHAR}, fileName4 = #{upload_sub.fileName4:VARCHAR}, fileName5 = #{upload_sub.fileName5:VARCHAR}
+		WHERE fileNo = #{upload.fileNo}
+	</update>
 
 </mapper>

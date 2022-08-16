@@ -1,17 +1,17 @@
 package com.model2.mvc.service.domain;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class Upload {
 	
 	private String fileNo;
 	private int fileCount;
-	private String[] fileName;
+	private List<String> fileName;
 	
 	public Upload() {
 	}
 
-	public Upload(String fileNo, int fileCount, String[] fileName) {
+	public Upload(String fileNo, int fileCount, List<String> fileName) {
 		super();
 		this.fileNo = fileNo;
 		this.fileCount = fileCount;
@@ -34,11 +34,11 @@ public class Upload {
 		this.fileCount = fileCount;
 	}
 
-	public String[] getFileName() {
+	public List<String> getFileName() {
 		return fileName;
 	}
 
-	public void setFileName(String[] fileName) {
+	public void setFileName(List<String> fileName) {
 		this.fileName = fileName;
 	}
 
@@ -50,7 +50,7 @@ public class Upload {
 		builder.append(", fileCount=");
 		builder.append(fileCount);
 		builder.append(", fileName=");
-		builder.append(Arrays.toString(fileName));
+		builder.append(fileName);
 		builder.append("]");
 		return builder.toString();
 	}

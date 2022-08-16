@@ -18,7 +18,7 @@ function fncUpdateProduct(){
 	var manuDate = document.detailForm.manuDate.value;
 	var amount = document.detailForm.amount.value;
 	var price = document.detailForm.price.value;
-	alert(name);
+	//alert(name);
 	//alert(detail);
 	//alert(manuDate);
 	//alert(amount);
@@ -50,13 +50,48 @@ function fncUpdateProduct(){
 }
 
 </script>
+
+<script type="text/javascript">
+var cnt = ${ count };
+function fn_addFile(){
+	alert(cnt);
+	if(cnt == 5){
+		document.getElementById('limit').innerText = '5개까지 업로드 가능합니다.';
+	}else{
+		cnt++;
+		var input1 = document.createElement('input');
+		var br1 = document.createElement('br');
+		input1.setAttribute("type", "file");
+		input1.setAttribute("name", "uploadfile");
+		input1.setAttribute("value", "value"+cnt);
+		input1.setAttribute("class", "ct_input_g");
+		input1.setAttribute("style", "width: 200px; height: 19px");
+		input1.setAttribute("maxLength", "13");
+		document.getElementById('createInput').appendChild(br1);
+		document.getElementById('createInput').appendChild(input1);
+	}
+}
+
+function fn_removeFile(){
+	if(cnt == 0){
+		document.getElementById('limit').innerText = ' ';
+	}else{
+		cnt--;
+		document.getElementById('limit').innerText = ' ';
+		document.getElementById('createInput').lastChild.remove();
+		document.getElementById('createInput').lastChild.remove();
+	}
+}
+</script>
+
 </head>
 
 <body bgcolor="#ffffff" text="#000000">
 
 <form name="detailForm" method="post" enctype="multipart/form-data">
 
-<input type="hidden" name="prodNo" value="${ productVO.prodNo }<%--=productVO.getProdNo() --%>"/>
+<input type="hidden" name="prodNo" value="${ productVO.prodNo }"/>
+<input type="hidden" name="fileName" value="${ productVO.fileName }"/>
 
 <table width="100%" height="37" border="0" cellpadding="0" cellspacing="0">
 	<tr>
@@ -157,18 +192,53 @@ function fncUpdateProduct(){
 	<tr>
 		<td width="104" class="ct_write">상품이미지</td>
 		<td bgcolor="D6D6D6" width="1"></td>
-		<td class="ct_write01">
-			<input type="file" name="fileName" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13"/>
-			<!-- <input type="text" name="fileName" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13"/> -->
+		<td class="ct_write01" id="createInput">
+			<input type="button" value="파일추가" onclick="fn_addFile()">
+			<input type="button" value="파일삭제" onclick="fn_removeFile()">
+			<b id="limit"></b>
+		</td>
 			<!-- 테이블 시작 -->
 			<table border="0" cellspacing="0" cellpadding="0">
 				<tr>
 					<td height="26">
-						<img src="/images/uploadFiles/${ productVO.fileName }"/>
+					<b id="fileName1">
+						<c:if test="${ uploadVO.fileName[0].fileName1 != null }">
+							<img src="/images/uploadFiles/${ uploadVO.fileName[0].fileName1 }"/><br/>
+							<input type="file" name="uploadfile" value="파일수정" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13">
+							${ uploadVO.fileName[0].fileName1 }<br/>
+						</c:if>
+					</b>
+					<b id="fileName2">
+						<c:if test="${ uploadVO.fileName[0].fileName2 != null }">
+							<img src="/images/uploadFiles/${ uploadVO.fileName[0].fileName2 }"/><br/>
+							<input type="file" name="uploadfile" value="파일수정" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13">
+							${ uploadVO.fileName[0].fileName2 }<br/>
+						</c:if>
+					</b>
+					<b id="fileName3">
+						<c:if test="${ uploadVO.fileName[0].fileName3 != null }">
+							<img src="/images/uploadFiles/${ uploadVO.fileName[0].fileName3 }"/><br/>
+							<input type="file" name="uploadfile" value="파일수정" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13">
+							${ uploadVO.fileName[0].fileName3 }<br/>
+						</c:if>
+					</b>
+					<b id="fileName4">
+						<c:if test="${ uploadVO.fileName[0].fileName4 != null }">
+							<img src="/images/uploadFiles/${ uploadVO.fileName[0].fileName4 }"/><br/>
+							<input type="file" name="uploadfile" value="파일수정" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13">
+							${ uploadVO.fileName[0].fileName4 }<br/>
+						</c:if>
+					</b>
+					<b id="fileName5">
+						<c:if test="${ uploadVO.fileName[0].fileName5 != null }">
+							<img src="/images/uploadFiles/${ uploadVO.fileName[0].fileName5 }"/><br/>
+							<input type="file" name="uploadfile" value="파일수정" class="ct_input_g" style="width: 200px; height: 19px" maxLength="13">
+							${ uploadVO.fileName[0].fileName5 }<br/>
+						</c:if>
+					</b>
 					</td>
 				</tr>
 			</table>
-		</td>
 	</tr>
 	<tr>
 		<td height="1" colspan="3" bgcolor="D6D6D6"></td>
